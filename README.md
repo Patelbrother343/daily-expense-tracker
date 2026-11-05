@@ -6,6 +6,9 @@ A simple, free, open-source expense tracking application built with HTML, CSS an
 
 [Open Daily Expense Tracker](https://patelbrother343.github.io/daily-expense-tracker/)
 
+## App Screenshot
+
+![Daily Expense Tracker screenshot](expense-tracker.png)
 ## Features
 
 - Add daily expenses.
