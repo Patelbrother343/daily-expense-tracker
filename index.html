@@ -3,90 +3,122 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Daily Expense Tracker</title>
 <style>
+* { box-sizing: border-box; }
 body {
   font-family: Arial, sans-serif;
   background: #f3f5f9;
   margin: 0;
-  padding: 30px 15px;
+  padding: 25px 15px;
   color: #222;
 }
 .container {
-  max-width: 650px;
+  max-width: 750px;
   margin: auto;
   background: white;
   padding: 25px;
   border-radius: 14px;
   box-shadow: 0 3px 15px #0001;
 }
-h1 { text-align: center; }
+h1 { text-align: center; color: #1d4ed8; }
 input, select, button {
   width: 100%;
   padding: 12px;
   margin: 8px 0;
-  box-sizing: border-box;
   border: 1px solid #ddd;
   border-radius: 7px;
 }
 button {
   background: #2563eb;
   color: white;
-  border: none;
+  border: 0;
   cursor: pointer;
 }
-.total {
-  background: #eaf1ff;
-  padding: 18px;
-  border-radius: 9px;
-  text-align: center;
+button:hover { opacity: .9; }
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(150px,1fr));
+  gap: 12px;
   margin: 20px 0;
 }
+.card {
+  background: #eaf1ff;
+  padding: 15px;
+  border-radius: 9px;
+  text-align: center;
+}
+.card h2 { margin: 8px 0; }
 .expense {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
-  padding: 12px 0;
   gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
 }
 .delete {
   width: auto;
   background: #dc2626;
   padding: 8px 12px;
 }
+.category {
+  padding: 10px;
+  background: #f3f5f9;
+  margin: 7px 0;
+  border-radius: 7px;
+}
+small { color: #666; }
+@media(max-width:450px) {
+  .container { padding: 16px; }
+}
 </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>Daily Expense Tracker</h1>
-  <p>Keep track of your daily spending.</p>
+<h1>Daily Expense Tracker</h1>
+<p>Manage your daily spending easily.</p>
 
-  <div class="total">
-    <h3>Total Expenses</h3>
+<div class="cards">
+  <div class="card">
+    <small>All-time spending</small>
     <h2 id="total">£0.00</h2>
   </div>
+  <div class="card">
+    <small>This month</small>
+    <h2 id="monthly">£0.00</h2>
+  </div>
+  <div class="card">
+    <small>Total entries</small>
+    <h2 id="count">0</h2>
+  </div>
+</div>
 
-  <h3>Add an Expense</h3>
-
-  <input id="name" placeholder="Expense name">
+<h3>Add an Expense</h3>
+<form id="expenseForm">
+  <input id="name" placeholder="Expense name" required>
   <input id="amount" type="number" min="0.01"
-    step="0.01" placeholder="Amount (£)">
-
+    step="0.01" placeholder="Amount (£)" required>
   <select id="category">
     <option>Food</option>
     <option>Transport</option>
     <option>Shopping</option>
     <option>Bills</option>
+    <option>Entertainment</option>
     <option>Other</option>
   </select>
+  <label for="date">Expense date</label>
+  <input id="date" type="date" required>
+  <button type="submit">Add Expense</button>
+</form>
 
-  <button onclick="addExpense()">Add Expense</button>
+<h3>Category Breakdown</h3>
+<div id="categories"></div>
 
-  <h3>Expense History</h3>
-  <div id="expenses"></div>
+<h3>Expense History</h3>
+<div id="expenses"></div>
 </div>
 
 <script>
@@ -94,65 +126,115 @@ let expenses = JSON.parse(
   localStorage.getItem("expenses") || "[]"
 );
 
+const today = () => {
+  const d = new Date();
+  return [
+    d.getFullYear(),
+    String(d.getMonth()+1).padStart(2,"0"),
+    String(d.getDate()).padStart(2,"0")
+  ].join("-");
+};
+
+document.getElementById("date").value = today();
+
+const money = amount =>
+  new Intl.NumberFormat("en-GB", {
+    style: "currency",
+    currency: "GBP"
+  }).format(amount);
+
 function save() {
   localStorage.setItem("expenses", JSON.stringify(expenses));
 }
 
-function addExpense() {
-  const name = document.getElementById("name").value.trim();
-  const amount = Number(document.getElementById("amount").value);
-  const category = document.getElementById("category").value;
+document.getElementById("expenseForm").addEventListener(
+  "submit", function(event) {
+    event.preventDefault();
 
-  if (!name || !Number.isFinite(amount) || amount <= 0) {
-    alert("Please enter a name and a valid amount.");
-    return;
+    const name = document.getElementById("name").value.trim();
+    const amount = Number(document.getElementById("amount").value);
+    const category = document.getElementById("category").value;
+    const date = document.getElementById("date").value;
+
+    if (!name || !Number.isFinite(amount) ||
+        amount <= 0 || !date) {
+      alert("Please enter valid expense details.");
+      return;
+    }
+
+    expenses.push({name, amount, category, date});
+    save();
+    this.reset();
+    document.getElementById("date").value = today();
+    render();
   }
-
-  expenses.push({name, amount, category});
-  save();
-
-  document.getElementById("name").value = "";
-  document.getElementById("amount").value = "";
-
-  render();
-}
+);
 
 function deleteExpense(index) {
+  if (!confirm("Delete this expense?")) return;
   expenses.splice(index, 1);
   save();
   render();
 }
 
 function render() {
+  const total = expenses.reduce(
+    (sum, item) => sum + Number(item.amount), 0
+  );
+
+  const month = today().slice(0,7);
+  const monthly = expenses
+    .filter(item => item.date && item.date.startsWith(month))
+    .reduce((sum,item) => sum + Number(item.amount),0);
+
+  document.getElementById("total").textContent = money(total);
+  document.getElementById("monthly").textContent = money(monthly);
+  document.getElementById("count").textContent = expenses.length;
+
+  const categories = {};
+  expenses.forEach(item => {
+    categories[item.category] =
+      (categories[item.category] || 0) + Number(item.amount);
+  });
+
+  const categoryBox = document.getElementById("categories");
+  categoryBox.replaceChildren();
+
+  Object.entries(categories).forEach(([name,amount]) => {
+    const div = document.createElement("div");
+    div.className = "category";
+    div.textContent = name + ": " + money(amount);
+    categoryBox.appendChild(div);
+  });
+
   const list = document.getElementById("expenses");
-  const total = expenses.reduce((sum, item) => sum + item.amount, 0);
+  list.replaceChildren();
 
-  document.getElementById("total").textContent =
-    "£" + total.toFixed(2);
-
-  list.innerHTML = "";
-
-  expenses.forEach((item, index) => {
+  expenses.forEach((item,index) => {
     const row = document.createElement("div");
     row.className = "expense";
 
     const details = document.createElement("span");
     details.textContent =
-      item.name + " · " + item.category +
-      " · £" + item.amount.toFixed(2);
+      item.name + " | " + item.category + " | " +
+      (item.date || "Date not recorded") + " | " +
+      money(Number(item.amount));
 
     const button = document.createElement("button");
     button.className = "delete";
     button.textContent = "Delete";
     button.addEventListener("click", () => deleteExpense(index));
 
-    row.append(details, button);
+    row.append(details,button);
     list.appendChild(row);
   });
+
+  if (expenses.length === 0) {
+    list.textContent = "No expenses recorded yet.";
+  }
 }
 
 render();
 </script>
-
 </body>
 </html>
