@@ -1,33 +1,67 @@
-# daily-expense-tracker
-A simple open-source daily expense tracking application for beginners.
 # Daily Expense Tracker
 
-A beginner-friendly open-source project designed to help people record and understand their daily spending.
+A simple, free, open-source expense tracking application built with HTML, CSS and JavaScript.
 
-## About the Project
+## Live Demo
 
-Daily Expense Tracker aims to provide a simple way to record expenses, organise spending into categories, and calculate total expenses.
+[Open Daily Expense Tracker](https://patelbrother343.github.io/daily-expense-tracker/)
 
-## Planned Features
+## Features
 
-- Add daily expenses
-- Categorise expenses
-- Calculate total spending
-- View expense history
-- Generate simple spending summaries
+- Add daily expenses.
+- Choose expense categories.
+- Record expense dates.
+- Calculate all-time spending.
+- Calculate current-month spending.
+- View category-wise spending.
+- Delete expenses.
+- Save expenses in browser storage.
+- Responsive layout for mobile and desktop.
 
-## Project Status
+## Screenshots
 
-Currently under development. Contributions, suggestions, and feedback are welcome.
+Screenshots of the application will be added here.
 
 ## Getting Started
 
-Instructions for installing and using the application will be added as development progresses.
+No installation or additional software is required.
+
+### Option 1: Use the Live Website
+
+Visit:
+
+https://patelbrother343.github.io/daily-expense-tracker/
+
+### Option 2: Run Locally
+
+1. Download or clone this repository.
+2. Open the downloaded project folder.
+3. Double-click `index.html`.
+4. The application will open in your web browser.
+
+## Technology Used
+
+- HTML
+- CSS
+- JavaScript
+- Browser Local Storage
+
+## Data Storage
+
+Expenses are stored locally in your browser using Local Storage.
+
+Your data is not automatically synchronised between different devices or browsers. Clearing browser storage may delete saved expenses.
 
 ## Contributing
 
-If you have ideas for improvements or find an issue, please open an issue or suggest a contribution.
+Contributions, suggestions and bug reports are welcome.
 
-## License
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting contributions.
 
-License information will be added after the project structure is established.
+## Licence
+
+This project is distributed under the MIT License. See [LICENSE](LICENSE) for details.
+
+## Project Status
+
+This project is under active development. Feedback and genuine contributions are welcome.
