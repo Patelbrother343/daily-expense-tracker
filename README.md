@@ -8,7 +8,7 @@ A simple, free, open-source expense tracking application built with HTML, CSS an
 
 ## App Screenshot
 
-![Daily Expense Tracker screenshot](expense-tracker.png)
+![Daily Expense Tracker screenshot](expense-tracker.png.png)
 ## Features
 
 - Add daily expenses.
