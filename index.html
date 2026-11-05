@@ -235,6 +235,32 @@ function render() {
 }
 
 render();
+  function exportCSV() {
+  const headers = ["Name", "Category", "Date", "Amount"];
+  const rows = expenses.map(item => [
+    item.name,
+    item.category,
+    item.date || "",
+    item.amount
+  ]);
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(value =>
+      `"${String(value ?? "").replace(/"/g, '""')}"`
+    ).join(","))
+    .join("\n");
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "my-expenses.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
 </script>
+  
 </body>
 </html>
