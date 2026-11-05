@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Expense Tracker</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f3f5f9;
+  margin: 0;
+  padding: 30px 15px;
+  color: #222;
+}
+.container {
+  max-width: 650px;
+  margin: auto;
+  background: white;
+  padding: 25px;
+  border-radius: 14px;
+  box-shadow: 0 3px 15px #0001;
+}
+h1 { text-align: center; }
+input, select, button {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 7px;
+}
+button {
+  background: #2563eb;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+.total {
+  background: #eaf1ff;
+  padding: 18px;
+  border-radius: 9px;
+  text-align: center;
+  margin: 20px 0;
+}
+.expense {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 12px 0;
+  gap: 10px;
+}
+.delete {
+  width: auto;
+  background: #dc2626;
+  padding: 8px 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Daily Expense Tracker</h1>
+  <p>Keep track of your daily spending.</p>
+
+  <div class="total">
+    <h3>Total Expenses</h3>
+    <h2 id="total">£0.00</h2>
+  </div>
+
+  <h3>Add an Expense</h3>
+
+  <input id="name" placeholder="Expense name">
+  <input id="amount" type="number" min="0.01"
+    step="0.01" placeholder="Amount (£)">
+
+  <select id="category">
+    <option>Food</option>
+    <option>Transport</option>
+    <option>Shopping</option>
+    <option>Bills</option>
+    <option>Other</option>
+  </select>
+
+  <button onclick="addExpense()">Add Expense</button>
+
+  <h3>Expense History</h3>
+  <div id="expenses"></div>
+</div>
+
+<script>
+let expenses = JSON.parse(
+  localStorage.getItem("expenses") || "[]"
+);
+
+function save() {
+  localStorage.setItem("expenses", JSON.stringify(expenses));
+}
+
+function addExpense() {
+  const name = document.getElementById("name").value.trim();
+  const amount = Number(document.getElementById("amount").value);
+  const category = document.getElementById("category").value;
+
+  if (!name || !Number.isFinite(amount) || amount <= 0) {
+    alert("Please enter a name and a valid amount.");
+    return;
+  }
+
+  expenses.push({name, amount, category});
+  save();
+
+  document.getElementById("name").value = "";
+  document.getElementById("amount").value = "";
+
+  render();
+}
+
+function deleteExpense(index) {
+  expenses.splice(index, 1);
+  save();
+  render();
+}
+
+function render() {
+  const list = document.getElementById("expenses");
+  const total = expenses.reduce((sum, item) => sum + item.amount, 0);
+
+  document.getElementById("total").textContent =
+    "£" + total.toFixed(2);
+
+  list.innerHTML = "";
+
+  expenses.forEach((item, index) => {
+    const row = document.createElement("div");
+    row.className = "expense";
+
+    const details = document.createElement("span");
+    details.textContent =
+      item.name + " · " + item.category +
+      " · £" + item.amount.toFixed(2);
+
+    const button = document.createElement("button");
+    button.className = "delete";
+    button.textContent = "Delete";
+    button.addEventListener("click", () => deleteExpense(index));
+
+    row.append(details, button);
+    list.appendChild(row);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
